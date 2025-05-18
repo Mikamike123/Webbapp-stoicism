@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stoic Wisdom</title>
+  <script src="quotes.js"></script>
+  <style>
+    body {
+      background: #f6f6f6;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      margin-top: 2vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 95vw;
+      max-width: 420px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 2rem;
+      box-shadow: 0 4px 24px 0 rgba(44,62,80,0.12);
+      padding: 2.5rem 1.5rem 2rem 1.5rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .quote {
+      font-size: 1.22rem;
+      color: #232946;
+      margin-bottom: 1.3rem;
+      font-weight: 600;
+      min-height: 64px;
+      animation: fadein .5s;
+    }
+    .details {
+      font-size: 1rem;
+      color: #005f73;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+    .work {
+      font-size: 0.95rem;
+      color: #888;
+      margin-bottom: 0.2rem;
+    }
+    .main-btn, .fav-btn, .show-favs-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 1rem 2rem;
+      font-size: 1.08rem;
+      font-family: inherit;
+      font-weight: 600;
+      margin: 0.3rem;
+      background: #232946;
+      color: #fff;
+      box-shadow: 0 2px 10px 0 rgba(0,0,0,0.07);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.1s;
+    }
+    .main-btn:hover, .fav-btn:hover, .show-favs-btn:hover {
+      background: #005f73;
+      transform: scale(1.04);
+    }
+    .fav-btn {
+      background: #eebbc3;
+      color: #232946;
+    }
+    .fav-btn.fav {
+      background: #005f73;
+      color: #fff;
+    }
+    .show-favs-btn {
+      background: #fff;
+      color: #232946;
+      border: 2px solid #005f73;
+      font-weight: 400;
+    }
+    .favs-list {
+      margin-top: 1.5rem;
+      background: #fff;
+      border-radius: 1.2rem;
+      box-shadow: 0 4px 24px 0 rgba(44,62,80,0.12);
+      padding: 1.5rem;
+      max-height: 330px;
+      overflow-y: auto;
+      width: 100%;
+      animation: fadein .6s;
+    }
+    .fav-item {
+      margin-bottom: 1.1rem;
+      border-bottom: 1px dashed #eebbc355;
+      padding-bottom: 0.8rem;
+    }
+    .fav-item:last-child {
+      border-bottom: none;
+    }
+    .no-fav {
+      color: #999;
+      font-style: italic;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(18px);}
+      to   { opacity: 1; transform: none;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="card">
+      <div class="quote" id="quote">Clique sur le bouton pour recevoir une dose de sagesse stoïcienne.</div>
+      <div class="details" id="author"></div>
+      <div class="work" id="work"></div>
+    </div>
+    <button class="main-btn" onclick="showQuote()">Nouvelle citation</button>
+    <button class="fav-btn" id="favBtn" onclick="addToFav()">J'ai envie d’y réfléchir</button>
+    <button class="show-favs-btn" onclick="toggleFavs()">Voir mes favoris</button>
+    <div class="favs-list" id="favsList" style="display:none;"></div>
+  </div>
+  <script>
+   
+    let currentIndex = null;
+
+    function showQuote() {
+      let index;
+      do {
+        index = Math.floor(Math.random() * quotes.length);
+      } while (index === currentIndex && quotes.length > 1);
+      currentIndex = index;
+      document.getElementById('quote').innerText = quotes[index].quote;
+      document.getElementById('author').innerText = quotes[index].author ? quotes[index].author : "";
+      document.getElementById('work').innerText = quotes[index].work ? quotes[index].work : "";
+      updateFavBtn();
+    }
+
+    function getCurrentQuote() {
+      if (currentIndex === null) return null;
+      return quotes[currentIndex];
+    }
+
+    function addToFav() {
+      const quote = getCurrentQuote();
+      if (!quote) return;
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      if (!favs.some(f => f.quote === quote.quote && f.author === quote.author)) {
+        favs.push(quote);
+        localStorage.setItem('stoicFavs', JSON.stringify(favs));
+      }
+      updateFavBtn();
+    }
+
+    function updateFavBtn() {
+      const quote = getCurrentQuote();
+      if (!quote) {
+        document.getElementById('favBtn').classList.remove('fav');
+        return;
+      }
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      if (favs.some(f => f.quote === quote.quote && f.author === quote.author)) {
+        document.getElementById('favBtn').classList.add('fav');
+      } else {
+        document.getElementById('favBtn').classList.remove('fav');
+      }
+    }
+
+    function toggleFavs() {
+      const favsDiv = document.getElementById('favsList');
+      if (favsDiv.style.display === "none") {
+        let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+        if (favs.length === 0) {
+          favsDiv.innerHTML = "<div class='no-fav'>Aucun favori pour l’instant.</div>";
+        } else {
+          favsDiv.innerHTML = favs.map(f =>
+            `<div class='fav-item'><div class='quote'>${f.quote}</div><div class='details'>${f.author}</div><div class='work'>${f.work}</div></div>`
+          ).join("");
+        }
+        favsDiv.style.display = "block";
+      } else {
+        favsDiv.style.display = "none";
+      }
+    }
+
+    // Affiche une première citation
+    showQuote();
+  </script>
+</body>
+</html>

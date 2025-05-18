@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stoic Wisdom</title>
+  <link rel="icon" href="buste-philosophe.png" />
+  <style>
+    :root {
+      --primary: #d6cbb6;
+      --secondary: #7c715b;
+      --accent: #ece4d9;
+      --background: #f9f6f1;
+      --text: #222;
+      --shadow: 0 4px 20px 0 rgba(100,80,50,0.09);
+      --radius: 1.7rem;
+      --transition: 0.3s cubic-bezier(.51,.92,.24,1);
+    }
+    body {
+      background: var(--background);
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      transition: background var(--transition);
+    }
+    header {
+      padding-top: 1.3rem;
+      padding-bottom: 1rem;
+      text-align: center;
+      width: 100%;
+    }
+    header img {
+      height: 48px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px #d6cbb622;
+      margin-bottom: 0.7rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      margin: 0.5rem 0 0.1rem 0;
+      color: var(--secondary);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    main {
+      width: 100%;
+      max-width: 420px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 80px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.2rem 1.5rem 1.2rem;
+      text-align: center;
+      margin: 1.1rem 0 2.2rem 0;
+      min-height: 150px;
+      width: 100%;
+      transition: box-shadow var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .quote {
+      font-size: 1.17rem;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+      font-weight: 600;
+      min-height: 52px;
+      animation: fadein .4s;
+    }
+    .details {
+      font-size: 0.98rem;
+      color: var(--secondary);
+      font-weight: 400;
+      margin-bottom: 0.25rem;
+    }
+    .work {
+      font-size: 0.94rem;
+      color: #a59c8e;
+      margin-bottom: 0.3rem;
+    }
+    .main-btn, .fav-btn, .copy-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 2.2rem;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      margin: 0.2rem 0.2rem 0.2rem 0.2rem;
+      background: var(--secondary);
+      color: #fff;
+      box-shadow: 0 2px 8px 0 rgba(180,160,100,0.08);
+      cursor: pointer;
+      transition: background var(--transition), transform 0.1s;
+    }
+    .main-btn:hover, .fav-btn:hover, .copy-btn:hover {
+      background: var(--primary);
+      color: var(--secondary);
+      transform: scale(1.04);
+    }
+    .fav-btn {
+      background: var(--primary);
+      color: var(--secondary);
+      border: 1.5px solid var(--secondary);
+    }
+    .fav-btn.fav {
+      background: var(--secondary);
+      color: #fff;
+      border: 1.5px solid var(--primary);
+    }
+    .copy-btn {
+      background: var(--accent);
+      color: var(--secondary);
+      border: 1.5px solid var(--secondary);
+      margin-left: 0.6rem;
+    }
+    .filter-authors {
+      margin: 1.3rem 0 1rem 0;
+      text-align: center;
+    }
+    .filter-authors select {
+      font-size: 1rem;
+      border-radius: 1rem;
+      border: 1.5px solid var(--secondary);
+      padding: 0.4rem 1.2rem;
+      background: var(--accent);
+      color: var(--secondary);
+    }
+    .favs-list, .history-list {
+      background: #fff;
+      border-radius: 1.2rem;
+      box-shadow: var(--shadow);
+      padding: 1.3rem;
+      max-height: 310px;
+      overflow-y: auto;
+      width: 100%;
+      margin-bottom: 1rem;
+      animation: fadein .5s;
+    }
+    .fav-item, .history-item {
+      margin-bottom: 1.05rem;
+      border-bottom: 1px dashed #d6cbb650;
+      padding-bottom: 0.5rem;
+      text-align: left;
+      font-size: 1rem;
+      color: var(--text);
+    }
+    .fav-item:last-child, .history-item:last-child {
+      border-bottom: none;
+    }
+    .delete-btn {
+      background: #ef5454;
+      color: #fff;
+      border: none;
+      border-radius: 1.2rem;
+      padding: 0.2rem 0.9rem;
+      font-size: 0.98rem;
+      margin-left: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .delete-btn:hover {
+      background: #c41c1c;
+    }
+    nav.menu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      background: #fff;
+      box-shadow: 0 -2px 20px #a59c8e11;
+      display: flex;
+      justify-content: space-around;
+      padding: 0.25rem 0 0.17rem 0;
+      z-index: 99;
+      border-top-left-radius: 1.1rem;
+      border-top-right-radius: 1.1rem;
+    }
+    nav.menu button {
+      background: none;
+      border: none;
+      outline: none;
+      padding: 0.7rem 0.8rem;
+      color: var(--secondary);
+      font-size: 1.11rem;
+      font-family: inherit;
+      font-weight: 600;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    nav.menu button.selected {
+      background: var(--primary);
+      color: #fff;
+    }
+    @media (min-width: 600px) {
+      nav.menu {
+        max-width: 420px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      main {
+        max-width: 420px;
+      }
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(18px);}
+      to   { opacity: 1; transform: none;}
+    }
+  </style>
+  <script src="quotes.js"></script>
+</head>
+<body>
+  <header>
+    <img src="buste-philosophe.png" alt="Logo buste philosophe" />
+    <h1>Stoïcisme Moderne</h1>
+  </header>
+  <main>
+    <section id="section-home" style="display:block;">
+      <div class="card" id="card-home">
+        <div class="quote" id="quote"></div>
+        <div class="details" id="author"></div>
+        <div class="work" id="work"></div>
+        <button class="main-btn" onclick="showQuote()">Nouvelle citation</button>
+        <button class="fav-btn" id="favBtn" onclick="addToFav()">J'ai envie d’y réfléchir</button>
+        <button class="copy-btn" onclick="copyQuote()">Copier</button>
+      </div>
+    </section>
+    <section id="section-browse" style="display:none;">
+      <div class="filter-authors">
+        <label for="authorSelect">Filtrer par auteur :</label>
+        <select id="authorSelect" onchange="filterByAuthor()"></select>
+      </div>
+      <div class="card" id="card-browse">
+        <div class="quote" id="quote-browse"></div>
+        <div class="details" id="author-browse"></div>
+        <div class="work" id="work-browse"></div>
+        <button class="main-btn" onclick="nextFilteredQuote()">Suivant</button>
+        <button class="fav-btn" id="favBtnBrowse" onclick="addToFavFiltered()">J'ai envie d’y réfléchir</button>
+        <button class="copy-btn" onclick="copyQuoteBrowse()">Copier</button>
+      </div>
+    </section>
+    <section id="section-favs" style="display:none;">
+      <div class="favs-list" id="favsList"></div>
+    </section>
+    <section id="section-history" style="display:none;">
+      <div class="history-list" id="historyList"></div>
+    </section>
+    <section id="section-settings" style="display:none;">
+      <div class="card">
+        <strong>Paramètres à venir…</strong><br><br>
+        <span style="font-size:0.97rem;">Mode sombre, export favoris, et plus…</span>
+      </div>
+    </section>
+  </main>
+  <nav class="menu">
+    <button id="btn-home" class="selected" onclick="showSection('home')">Accueil</button>
+    <button id="btn-browse" onclick="showSection('browse')">Parcourir</button>
+    <button id="btn-favs" onclick="showSection('favs')">Favoris</button>
+    <button id="btn-history" onclick="showSection('history')">Historique</button>
+    <button id="btn-settings" onclick="showSection('settings')">Paramètres</button>
+  </nav>
+  <script>
+    // Affichage citation aléatoire (Accueil)
+    let currentIndex = null;
+    let history = [];
+    let filteredQuotes = [];
+    let filteredIndex = 0;
+
+    // Initialisation de la page
+    document.addEventListener("DOMContentLoaded", function() {
+      // Setup browse authors
+      fillAuthorSelect();
+      showQuote();
+      showFilteredQuote();
+      showFavs();
+      showHistory();
+    });
+
+    function showSection(section) {
+      const sections = ['home','browse','favs','history','settings'];
+      sections.forEach(s => {
+        document.getElementById('section-' + s).style.display = (s === section) ? 'block' : 'none';
+        document.getElementById('btn-' + s).classList.toggle('selected', s === section);
+      });
+      if(section === 'favs') showFavs();
+      if(section === 'history') showHistory();
+    }
+
+    // ------ ACCUEIL ------
+    function showQuote() {
+      let index;
+      do {
+        index = Math.floor(Math.random() * quotes.length);
+      } while (index === currentIndex && quotes.length > 1);
+      currentIndex = index;
+      updateHomeQuote();
+      addToHistory(quotes[currentIndex]);
+      updateFavBtn();
+    }
+    function updateHomeQuote() {
+      let q = quotes[currentIndex];
+      document.getElementById('quote').innerText = q.quote;
+      document.getElementById('author').innerText = q.author || "";
+      document.getElementById('work').innerText = q.work || "";
+    }
+
+    // ------ FAVORIS ------
+    function getCurrentQuote() {
+      if (currentIndex === null) return null;
+      return quotes[currentIndex];
+    }
+    function addToFav() {
+      const quote = getCurrentQuote();
+      if (!quote) return;
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      if (!favs.some(f => f.quote === quote.quote && f.author === quote.author)) {
+        favs.push(quote);
+        localStorage.setItem('stoicFavs', JSON.stringify(favs));
+      }
+      updateFavBtn();
+      showFavs();
+    }
+    function updateFavBtn() {
+      const quote = getCurrentQuote();
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      document.getElementById('favBtn').classList.toggle('fav', quote && favs.some(f => f.quote === quote.quote && f.author === quote.author));
+    }
+    function showFavs() {
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      const favsDiv = document.getElementById('favsList');
+      if (favs.length === 0) {
+        favsDiv.innerHTML = "<div class='no-fav'>Aucun favori pour l’instant.</div>";
+      } else {
+        favsDiv.innerHTML = favs.map((f,i) =>
+          `<div class='fav-item'><div class='quote'>${f.quote}</div><div class='details'>${f.author}</div><div class='work'>${f.work}</div>
+          <button class='delete-btn' onclick='deleteFav(${i})'>Supprimer</button></div>`
+        ).join("");
+      }
+    }
+    function deleteFav(index) {
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      favs.splice(index, 1);
+      localStorage.setItem('stoicFavs', JSON.stringify(favs));
+      showFavs();
+    }
+
+    // ------ COPIER ------
+    function copyQuote() {
+      let q = getCurrentQuote();
+      if (!q) return;
+      let text = `"${q.quote}" — ${q.author}${q.work ? ", " + q.work : ""}`;
+      navigator.clipboard.writeText(text);
+      alert("Citation copiée !");
+    }
+	// ------ HISTORIQUE ------
+    function addToHistory(quote) {
+      if(!quote) return;
+      let hist = JSON.parse(localStorage.getItem('stoicHistory') || '[]');
+      if(hist.length === 0 || hist[0].quote !== quote.quote) {
+        hist.unshift(quote);
+        if(hist.length > 50) hist.pop();
+        localStorage.setItem('stoicHistory', JSON.stringify(hist));
+      }
+    }
+    function showHistory() {
+      let hist = JSON.parse(localStorage.getItem('stoicHistory') || '[]');
+      const histDiv = document.getElementById('historyList');
+      if (hist.length === 0) {
+        histDiv.innerHTML = "<div class='no-fav'>Aucune citation récemment vue.</div>";
+      } else {
+        histDiv.innerHTML = hist.map((f) =>
+          `<div class='history-item'><div class='quote'>${f.quote}</div><div class='details'>${f.author}</div><div class='work'>${f.work}</div></div>`
+        ).join("");
+      }
+    }
+
+    // ------ PARCOURIR / FILTRER ------
+    function fillAuthorSelect() {
+      let authors = Array.from(new Set(quotes.map(q => q.author).filter(Boolean))).sort();
+      let sel = document.getElementById('authorSelect');
+      sel.innerHTML = `<option value=''>Tous les auteurs</option>` + authors.map(a => `<option value="${a}">${a}</option>`).join("");
+    }
+    function filterByAuthor() {
+      let val = document.getElementById('authorSelect').value;
+      filteredQuotes = val ? quotes.filter(q => q.author === val) : quotes.slice();
+      filteredIndex = 0;
+      showFilteredQuote();
+    }
+    function showFilteredQuote() {
+      if(filteredQuotes.length === 0) filterByAuthor();
+      if(filteredQuotes.length === 0) {
+        document.getElementById('quote-browse').innerText = "Aucune citation trouvée pour cet auteur.";
+        document.getElementById('author-browse').innerText = "";
+        document.getElementById('work-browse').innerText = "";
+        document.getElementById('favBtnBrowse').style.display = "none";
+        document.getElementById('copyQuoteBrowse').style.display = "none";
+        return;
+      }
+      let q = filteredQuotes[filteredIndex];
+      document.getElementById('quote-browse').innerText = q.quote;
+      document.getElementById('author-browse').innerText = q.author || "";
+      document.getElementById('work-browse').innerText = q.work || "";
+      updateFavBtnBrowse();
+      document.getElementById('favBtnBrowse').style.display = "";
+      document.getElementById('copyQuoteBrowse').style.display = "";
+    }
+    function nextFilteredQuote() {
+      if(filteredQuotes.length === 0) return;
+      filteredIndex = (filteredIndex+1)%filteredQuotes.length;
+      showFilteredQuote();
+    }
+    function getCurrentFilteredQuote() {
+      if(filteredQuotes.length === 0) return null;
+      return filteredQuotes[filteredIndex];
+    }
+    function addToFavFiltered() {
+      const quote = getCurrentFilteredQuote();
+      if (!quote) return;
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      if (!favs.some(f => f.quote === quote.quote && f.author === quote.author)) {
+        favs.push(quote);
+        localStorage.setItem('stoicFavs', JSON.stringify(favs));
+      }
+      updateFavBtnBrowse();
+      showFavs();
+    }
+    function updateFavBtnBrowse() {
+      const quote = getCurrentFilteredQuote();
+      let favs = JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+      document.getElementById('favBtnBrowse').classList.toggle('fav', quote && favs.some(f => f.quote === quote.quote && f.author === quote.author));
+    }
+    function copyQuoteBrowse() {
+      let q = getCurrentFilteredQuote();
+      if (!q) return;
+      let text = `"${q.quote}" — ${q.author}${q.work ? ", " + q.work : ""}`;
+      navigator.clipboard.writeText(text);
+      alert("Citation copiée !");
+    }
+  </script>
+</body>
+</html>
