@@ -1,0 +1,25 @@
+// manifest.json
+{
+  "name": "Stoïcisme Moderne",
+  "short_name": "StoicWisdom",
+  "description": "Une collection de citations stoïciennes pour la sagesse quotidienne.",
+  "start_url": "/stoic-wisdomV2.html", // Ou juste "/" si c'est la page d'accueil
+  "display": "standalone", // standalone, fullscreen, minimal-ui, browser
+  "background_color": "#f9f6f1", // Votre var(--background)
+  "theme_color": "#7c715b", // Votre var(--secondary) pour la barre de titre du navigateur
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "buste-philosophe-192.png", // Vous devrez créer cette icône
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "buste-philosophe-512.png", // Et celle-ci
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
