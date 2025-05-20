@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stoic Wisdom</title>
+  <link rel="icon" href="buste-philosophe.png" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7c715b">
+  <style>
+    :root {
+      /* ... (tes variables de couleur light/dark restent les mêmes) ... */
+      --primary-light: #d6cbb6;
+      --secondary-light: #7c715b;
+      --accent-light: #ece4d9;
+      --background-light: #f9f6f1;
+      --text-light: #222;
+      --card-bg-light: #fff;
+      --shadow-color-light: rgba(100,80,50,0.09);
+      --nav-menu-shadow-light: #a59c8e11;
+      --nav-menu-bg-light: #fff;
+
+      --primary-dark: #7c715b;
+      --secondary-dark: #d6cbb6;
+      --accent-dark: #4a4336;
+      --background-dark: #222222;
+      --text-dark: #f0f0f0;
+      --card-bg-dark: #333333;
+      --shadow-color-dark: rgba(0,0,0,0.2);
+      --nav-menu-shadow-dark: rgba(0,0,0,0.3);
+      --nav-menu-bg-dark: #2c2c2c;
+
+      --primary: var(--primary-light);
+      --secondary: var(--secondary-light);
+      --accent: var(--accent-light);
+      --background: var(--background-light);
+      --text: var(--text-light);
+      --card-bg: var(--card-bg-light);
+      --shadow-color: var(--shadow-color-light);
+      --nav-menu-shadow: var(--nav-menu-shadow-light);
+      --nav-menu-bg: var(--nav-menu-bg-light);
+
+      --shadow: 0 4px 20px 0 var(--shadow-color);
+      --radius: 1.7rem;
+      --transition: 0.3s cubic-bezier(.51,.92,.24,1);
+      
+      --vh: 1vh; /* Fallback pour la hauteur dynamique */
+    }
+
+    body.dark-mode {
+      /* ... (tes variables dark mode restent les mêmes) ... */
+      --primary: var(--primary-dark);
+      --secondary: var(--secondary-dark);
+      --accent: var(--accent-dark);
+      --background: var(--background-dark);
+      --text: var(--text-dark);
+      --card-bg: var(--card-bg-dark);
+      --shadow-color: var(--shadow-color-dark);
+      --nav-menu-shadow: var(--nav-menu-shadow-dark);
+      --nav-menu-bg: var(--nav-menu-bg-dark);
+    }
+
+    html {
+        height: 100%; /* Assurer que html prend toute la hauteur */
+    }
+
+    body {
+      background: var(--background);
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      /* min-height: 100vh; Remplacé par la version dynamique */
+      min-height: calc(var(--vh, 1vh) * 100);
+      margin: 0;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Centre 'main' horizontalement s'il a une max-width */
+      transition: background var(--transition), color var(--transition);
+    }
+    header {
+      padding-top: 1.3rem;
+      padding-bottom: 1rem;
+      text-align: center;
+      width: 100%;
+      max-width: 420px; /* Pour correspondre à main */
+      box-sizing: border-box;
+    }
+    /* ... (autres styles header, h1 restent les mêmes) ... */
+     header img {
+      height: 48px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px var(--shadow-color-light);
+      margin-bottom: 0.7rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      margin: 0.5rem 0 0.1rem 0;
+      color: var(--secondary);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    main {
+      width: 100%;
+      max-width: 420px;
+      flex: 1; /* Prend l'espace restant dans body */
+      display: flex; /* Rendu flexible pour centrer son contenu (la section active) */
+      flex-direction: column;
+      align-items: center; /* Centre la section active horizontalement */
+      justify-content: center; /* Centre la section active verticalement */
+      padding-bottom: 90px; /* Augmenté un peu pour plus de marge avec la nav */
+      margin: 0 auto;
+      box-sizing: border-box; /* Pour que padding n'ajoute pas à la largeur/hauteur */
+    }
+    /* Styles pour que les sections individuelles prennent la place et centrent leur carte */
+    main > section {
+        width: 100%;
+        display: none; /* Géré par JS */
+        flex-direction: column;
+        align-items: center;
+        /* justify-content: center;  Permet aux listes de commencer en haut */
+        flex-grow: 1; /* Important pour occuper l'espace dans main */
+    }
+    /* Spécifique pour les sections qui doivent centrer une seule carte */
+    #section-home, #section-browse, #section-settings {
+        justify-content: center;
+    }
+    /* Pour les sections avec listes, on veut qu'elles commencent en haut */
+    #section-favs, #section-history {
+        justify-content: flex-start;
+        overflow-y: auto; /* Si le contenu de la section dépasse */
+    }
+
+    .card {
+      /* ... (la plupart des styles de .card restent les mêmes) ... */
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.2rem 1.5rem 1.2rem;
+      text-align: center;
+      margin: 1.1rem 0.5rem 1.1rem 0.5rem; /* Marge du bas réduite un peu */
+      min-height: 150px;
+      width: calc(100% - 1rem); 
+      max-width: 400px; /* Limite la largeur de la carte sur des écrans un peu plus larges que main */
+      box-sizing: border-box;
+      transition: box-shadow var(--transition), background var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    /* ... (styles .quote, .details, .work, boutons, .filter-authors, .favs-list etc. restent les mêmes) ... */
+    .quote {
+      font-size: 1.17rem;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+      font-weight: 600;
+      min-height: 52px;
+      animation: fadein .4s;
+    }
+    .details {
+      font-size: 0.98rem;
+      color: var(--secondary);
+      font-weight: 400;
+      margin-bottom: 0.25rem;
+    }
+    .work {
+      font-size: 0.94rem;
+      color: var(--accent); 
+      margin-bottom: 0.3rem;
+    }
+    .main-btn, .fav-btn, .copy-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 1.8rem; 
+      font-size: 0.95rem; 
+      font-family: inherit;
+      font-weight: 600;
+      margin: 0.3rem 0.2rem; 
+      background: var(--secondary);
+      color: #fff;
+      box-shadow: 0 2px 8px 0 rgba(180,160,100,0.08);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), transform 0.1s;
+      display: inline-flex; 
+      align-items: center;
+      justify-content: center;
+      min-width: 120px; 
+    }
+    .main-btn:hover, .fav-btn:hover, .copy-btn:hover {
+      background: var(--primary);
+      color: var(--secondary);
+      transform: scale(1.04);
+    }
+    .fav-btn {
+      background: var(--primary);
+      color: var(--secondary);
+      border: 1.5px solid var(--secondary);
+    }
+    .fav-btn.fav { 
+      background: var(--secondary);
+      color: #fff;
+      border: 1.5px solid var(--primary);
+    }
+    .fav-btn.fav::before { 
+        content: '❤️ ';
+        margin-right: 4px;
+    }
+    .copy-btn {
+      background: var(--accent);
+      color: var(--secondary);
+      border: 1.5px solid var(--secondary);
+    }
+    .button-group { 
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    .filter-authors {
+      margin: 1.3rem 0 1rem 0;
+      text-align: center;
+    }
+    .filter-authors select {
+      font-size: 1rem;
+      border-radius: 1rem;
+      border: 1.5px solid var(--secondary);
+      padding: 0.4rem 1.2rem;
+      background: var(--accent);
+      color: var(--secondary);
+      min-width: 200px;
+    }
+    .favs-list, .history-list {
+      background: var(--card-bg);
+      border-radius: 1.2rem;
+      box-shadow: var(--shadow);
+      padding: 1.3rem;
+      max-height: calc(var(--vh, 1vh) * 60); /* Limiter la hauteur pour ne pas déborder */
+      overflow-y: auto;
+      width: calc(100% - 1rem); 
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+      margin-bottom: 1rem;
+      animation: fadein .5s;
+      box-sizing: border-box;
+    }
+    .fav-item, .history-item {
+      margin-bottom: 1.05rem;
+      border-bottom: 1px dashed var(--primary); 
+      padding-bottom: 0.5rem;
+      text-align: left;
+      font-size: 1rem;
+      color: var(--text);
+    }
+    .fav-item:last-child, .history-item:last-child {
+      border-bottom: none;
+    }
+    .delete-btn {
+      background: #ef5454;
+      color: #fff;
+      border: none;
+      border-radius: 1.2rem;
+      padding: 0.2rem 0.9rem;
+      font-size: 0.98rem;
+      margin-left: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      float: right; 
+    }
+    .delete-btn:hover {
+      background: #c41c1c;
+    }
+    .no-fav, .no-history { 
+        text-align: center;
+        color: var(--secondary);
+        padding: 1rem;
+    }
+    nav.menu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0; /* Remplacer width:100vw et left:0 */
+      width: auto; /* Pour aller avec left:0 et right:0 */
+      background: var(--nav-menu-bg);
+      box-shadow: 0 -2px 20px var(--nav-menu-shadow);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.25rem 0; /* Enlever padding vertical spécifique .17rem */
+      padding-bottom: calc(0.17rem + env(safe-area-inset-bottom)); /* Ajout pour safe area */
+      z-index: 9999; /* Augmenté pour être sûr */
+      border-top-left-radius: 1.1rem;
+      border-top-right-radius: 1.1rem;
+      transition: background var(--transition);
+      /* border-top: 1px solid red; /* Pour débogage si toujours invisible */
+    }
+    nav.menu button {
+      /* ... (styles des boutons de nav restent les mêmes) ... */
+      background: none;
+      border: none;
+      outline: none;
+      padding: 0.7rem 0.5rem; 
+      color: var(--secondary);
+      font-size: 0.9rem; 
+      font-family: inherit;
+      font-weight: 600;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      flex-grow: 1; 
+      text-align: center;
+    }
+    nav.menu button.selected {
+      background: var(--primary);
+      color: var(--card-bg); 
+    }
+     #toast-notification {
+        position: fixed;
+        bottom: 80px; 
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--secondary);
+        color: var(--background); 
+        padding: 12px 22px;
+        border-radius: 8px;
+        z-index: 1000;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        opacity: 0;
+        transition: opacity 0.3s ease, bottom 0.3s ease;
+        pointer-events: none; 
+    }
+    #toast-notification.show {
+        opacity: 1;
+        bottom: 90px; 
+        pointer-events: auto;
+    }
+    .settings-option {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border: 1px solid var(--accent);
+        border-radius: 0.5rem;
+    }
+    .settings-option label {
+        font-weight: 500;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: .4s;
+      border-radius: 28px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--secondary);
+    }
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    @media (min-width: 600px) {
+      nav.menu {
+        max-width: 420px; /* S'applique à left:50% transformX(-50%) */
+        left: 50%;
+        right: auto; /* Annuler right:0 pour que max-width fonctionne avec le centrage */
+        transform: translateX(-50%);
+        width: 100%; /* Pour que max-width soit effectif */
+      }
+      main {
+        max-width: 420px;
+        /* padding-bottom: 80px; /* Peut rester ou s'ajuster si la nav est plus petite */
+      }
+       /* ... (autres styles @media restent les mêmes) ... */
+      .main-btn, .fav-btn, .copy-btn {
+        padding: 0.9rem 2.2rem;
+        font-size: 1rem;
+      }
+      nav.menu button {
+        font-size: 1.11rem;
+        padding: 0.7rem 0.8rem;
+      }
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(18px);}
+      to   { opacity: 1; transform: none;}
+    }
+  </style>
+  <script src="quotes.js"></script>
+</head>
+<body>
+  <!-- Header, Main, Sections, Nav.menu, Toast ... -->
+  <header>
+    <img src="buste-philosophe.png" alt="Logo buste philosophe" />
+    <h1>Stoïcisme Moderne</h1>
+  </header>
+  <main>
+    <section id="section-home"> <!-- JS ajoutera display:flex lors de l'affichage -->
+      <div class="card" id="card-home">
+        <div class="quote" id="quote-home"></div>
+        <div class="details" id="author-home"></div>
+        <div class="work" id="work-home"></div>
+        <div class="button-group">
+            <button class="main-btn" onclick="showNewRandomQuote()">Nouvelle citation</button>
+            <button class="fav-btn" id="favBtnHome" onclick="handleToggleFavorite(getCurrentRandomQuote(), 'favBtnHome')">J'ai envie d’y réfléchir</button>
+            <button class="copy-btn" id="copyBtnHome" onclick="handleCopyQuote(getCurrentRandomQuote())">Copier</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-browse">
+      <div class="filter-authors">
+        <label for="authorSelect">Filtrer par auteur :</label>
+        <select id="authorSelect" onchange="filterByAuthor()"></select>
+      </div>
+      <div class="card" id="card-browse">
+        <div class="quote" id="quote-browse"></div>
+        <div class="details" id="author-browse"></div>
+        <div class="work" id="work-browse"></div>
+         <div class="button-group">
+            <button class="main-btn" onclick="nextFilteredQuote()">Suivant</button>
+            <button class="fav-btn" id="favBtnBrowse" onclick="handleToggleFavorite(getCurrentFilteredQuote(), 'favBtnBrowse')">J'ai envie d’y réfléchir</button>
+            <button class="copy-btn" id="copyBtnBrowse" onclick="handleCopyQuote(getCurrentFilteredQuote())">Copier</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-favs">
+      <h2>Mes Favoris</h2>
+      <div class="favs-list" id="favsList"></div>
+    </section>
+
+    <section id="section-history">
+      <h2>Mon Historique</h2>
+      <div class="history-list" id="historyList"></div>
+    </section>
+
+    <section id="section-settings">
+        <h2>Paramètres</h2>
+      <div class="card">
+        <div class="settings-option">
+            <label for="darkModeToggle">Mode Sombre</label>
+            <label class="switch">
+                <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="settings-option">
+            <label>Exporter les favoris (JSON)</label>
+            <button class="main-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="exportFavorites()">Exporter</button>
+        </div>
+         <div class="settings-option">
+            <label>Importer les favoris (JSON)</label>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+            <button class="main-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="document.getElementById('importFile').click();">Importer</button>
+        </div>
+        <br>
+        <span style="font-size:0.97rem;">D'autres paramètres à venir…</span>
+      </div>
+    </section>
+  </main>
+
+  <nav class="menu">
+    <button id="btn-home" class="selected" onclick="showSection('home')">Accueil</button>
+    <button id="btn-browse" onclick="showSection('browse')">Parcourir</button>
+    <button id="btn-favs" onclick="showSection('favs')">Favoris</button>
+    <button id="btn-history" onclick="showSection('history')">Historique</button>
+    <button id="btn-settings" onclick="showSection('settings')">Paramètres</button>
+  </nav>
+
+  <div id="toast-notification"></div>
+
+  <script>
+    // Fonction pour ajuster la hauteur du viewport dynamique
+    // Doit être définie et appelée tôt
+    function setScreenHeight() {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    }
+    window.addEventListener('resize', setScreenHeight);
+    window.addEventListener('orientationchange', setScreenHeight);
+    setScreenHeight(); // Appel initial
+
+    // --- Variables globales et éléments DOM (comme avant) ---
+    let currentRandomQuoteIndex = null;
+    let filteredQuotes = [];
+    let currentFilteredQuoteIndex = 0;
+
+    const quoteHomeEl = document.getElementById('quote-home');
+    const authorHomeEl = document.getElementById('author-home');
+    const workHomeEl = document.getElementById('work-home');
+    const favBtnHomeEl = document.getElementById('favBtnHome');
+
+    const quoteBrowseEl = document.getElementById('quote-browse');
+    const authorBrowseEl = document.getElementById('author-browse');
+    const workBrowseEl = document.getElementById('work-browse');
+    const favBtnBrowseEl = document.getElementById('favBtnBrowse');
+    
+    const authorSelectEl = document.getElementById('authorSelect');
+    const favsListEl = document.getElementById('favsList');
+    const historyListEl = document.getElementById('historyList');
+    const toastEl = document.getElementById('toast-notification');
+    const darkModeToggleEl = document.getElementById('darkModeToggle');
+    const importFileEl = document.getElementById('importFile');
+
+    // --- INITIALIZATION ---
+    document.addEventListener("DOMContentLoaded", function() {
+      initDarkMode();
+      fillAuthorSelect();
+      showNewRandomQuote(); 
+      loadFilteredQuotes(); 
+      showFavs();
+      showHistory();
+      
+      importFileEl.addEventListener('change', importFavorites);
+
+      // S'assurer que la section active initiale a le bon style display flex
+      const initialSection = document.querySelector('nav.menu button.selected').id.replace('btn-', 'section-');
+      if (document.getElementById(initialSection)) {
+          document.getElementById(initialSection).style.display = 'flex';
+      }
+    });
+
+    // --- DARK MODE (comme avant) ---
+    function initDarkMode() {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const storedPreference = localStorage.getItem('darkMode');
+        let useDark = storedPreference !== null ? storedPreference === 'true' : prefersDark;
+        setDarkMode(useDark);
+        darkModeToggleEl.checked = useDark;
+    }
+    function setDarkMode(isDark) {
+        document.body.classList.toggle('dark-mode', isDark);
+    }
+    function toggleDarkMode(isDark) {
+        setDarkMode(isDark);
+        localStorage.setItem('darkMode', isDark);
+    }
+    
+    // --- NAVIGATION ---
+    function showSection(sectionId) {
+      const sections = ['home','browse','favs','history','settings'];
+      sections.forEach(sId => {
+        const sectionElement = document.getElementById('section-' + sId);
+        if (sectionElement) {
+            // Appliquer display:flex pour les sections actives, none pour les autres
+            sectionElement.style.display = (sId === sectionId) ? 'flex' : 'none';
+        }
+        document.getElementById('btn-' + sId).classList.toggle('selected', sId === sectionId);
+      });
+      if(sectionId === 'favs') showFavs();
+      if(sectionId === 'history') showHistory();
+    }
+
+    // --- Le reste de votre JavaScript (displayQuote, HOME, BROWSE, FAVORITES, COPY, HISTORY, TOAST, SETTINGS) reste identique ---
+    // ... (collez ici tout le reste de votre bloc <script> précédent à partir de "--- QUOTE DISPLAY LOGIC (Generic) ---") ...
+    // Assurez-vous d'inclure tout le JS jusqu'à la fin, y compris l'enregistrement du Service Worker.
+    // COPIEZ TOUT LE BLOC SCRIPT D'ORIGINE ICI, À PARTIR DE:
+    // function displayQuote(quoteObj, quoteEl, authorEl, workEl, favBtnEl) { ... }
+    // JUSQU'À LA FIN DU SCRIPT D'ENREGISTREMENT DU SERVICE WORKER.
+
+    // --- QUOTE DISPLAY LOGIC (Generic) ---
+    function displayQuote(quoteObj, quoteEl, authorEl, workEl, favBtnEl) {
+        if (!quoteObj) {
+            quoteEl.innerText = "Aucune citation à afficher.";
+            authorEl.innerText = "";
+            workEl.innerText = "";
+            if (favBtnEl) favBtnEl.style.display = "none";
+            if (quoteEl.id === 'quote-home') document.getElementById('copyBtnHome').style.display = "none";
+            if (quoteEl.id === 'quote-browse') document.getElementById('copyBtnBrowse').style.display = "none";
+            return;
+        }
+        quoteEl.innerText = quoteObj.quote;
+        authorEl.innerText = quoteObj.author || "Auteur inconnu";
+        workEl.innerText = quoteObj.work || "";
+        if (favBtnEl) {
+            favBtnEl.style.display = "";
+            updateFavoriteButtonState(quoteObj, favBtnEl.id);
+        }
+        if (quoteEl.id === 'quote-home') document.getElementById('copyBtnHome').style.display = "";
+        if (quoteEl.id === 'quote-browse') document.getElementById('copyBtnBrowse').style.display = "";
+    }
+    
+    // --- HOME SECTION (Random Quotes) ---
+    function showNewRandomQuote() {
+      if (quotes.length === 0) {
+        displayQuote(null, quoteHomeEl, authorHomeEl, workHomeEl, favBtnHomeEl);
+        return;
+      }
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * quotes.length);
+      } while (newIndex === currentRandomQuoteIndex && quotes.length > 1);
+      currentRandomQuoteIndex = newIndex;
+      const currentQuote = getCurrentRandomQuote();
+      displayQuote(currentQuote, quoteHomeEl, authorHomeEl, workHomeEl, favBtnHomeEl);
+      addToHistory(currentQuote);
+    }
+
+    function getCurrentRandomQuote() {
+      if (currentRandomQuoteIndex === null || quotes.length === 0) return null;
+      return quotes[currentRandomQuoteIndex];
+    }
+
+    // --- BROWSE SECTION (Filtered Quotes) ---
+    function fillAuthorSelect() {
+      let authors = Array.from(new Set(quotes.map(q => q.author).filter(Boolean))).sort();
+      authorSelectEl.innerHTML = `<option value=''>Tous les auteurs</option>` + 
+                                authors.map(a => `<option value="${a}">${a}</option>`).join("");
+    }
+
+    function filterByAuthor() {
+      loadFilteredQuotes();
+    }
+    
+    function loadFilteredQuotes() {
+      let selectedAuthor = authorSelectEl.value;
+      filteredQuotes = selectedAuthor ? quotes.filter(q => q.author === selectedAuthor) : [...quotes];
+      currentFilteredQuoteIndex = 0;
+      showCurrentFilteredQuote();
+    }
+
+    function showCurrentFilteredQuote() {
+      if (filteredQuotes.length === 0) {
+        displayQuote(null, quoteBrowseEl, authorBrowseEl, workBrowseEl, favBtnBrowseEl);
+        return;
+      }
+      const quote = filteredQuotes[currentFilteredQuoteIndex];
+      displayQuote(quote, quoteBrowseEl, authorBrowseEl, workBrowseEl, favBtnBrowseEl);
+    }
+
+    function nextFilteredQuote() {
+      if (filteredQuotes.length === 0) return;
+      currentFilteredQuoteIndex = (currentFilteredQuoteIndex + 1) % filteredQuotes.length;
+      showCurrentFilteredQuote();
+    }
+    
+    function getCurrentFilteredQuote() {
+      if (filteredQuotes.length === 0) return null;
+      return filteredQuotes[currentFilteredQuoteIndex];
+    }
+
+    // --- FAVORITES LOGIC ---
+    function getFavorites() {
+        return JSON.parse(localStorage.getItem('stoicFavs') || '[]');
+    }
+
+    function saveFavorites(favsArray) {
+        localStorage.setItem('stoicFavs', JSON.stringify(favsArray));
+    }
+    
+    function isQuoteFavorite(quoteObj) {
+        if (!quoteObj) return false;
+        const favs = getFavorites();
+        return favs.some(f => f.quote === quoteObj.quote && f.author === quoteObj.author);
+    }
+
+    function updateFavoriteButtonState(quoteObj, favBtnId) {
+        const favBtn = document.getElementById(favBtnId);
+        if (!favBtn) return;
+        const isFav = isQuoteFavorite(quoteObj);
+        favBtn.classList.toggle('fav', isFav);
+    }
+
+    function handleToggleFavorite(quoteObj, favBtnId) {
+      if (!quoteObj) return;
+      let favs = getFavorites();
+      const favIndex = favs.findIndex(f => f.quote === quoteObj.quote && f.author === quoteObj.author);
+
+      if (favIndex > -1) { 
+        favs.splice(favIndex, 1);
+        showToast("Retiré des favoris.");
+      } else { 
+        favs.push(quoteObj);
+        showToast("Ajouté aux favoris !");
+      }
+      saveFavorites(favs);
+      updateFavoriteButtonState(quoteObj, favBtnId);
+      if (document.getElementById('section-favs').style.display === 'flex') { // Check for flex now
+        showFavs(); 
+      }
+    }
+
+    function showFavs() {
+      let favs = getFavorites();
+      if (favs.length === 0) {
+        favsListEl.innerHTML = "<div class='no-fav'>Aucun favori pour l’instant.</div>";
+      } else {
+        favsListEl.innerHTML = favs.map((f,i) =>
+          `<div class='fav-item'>
+            <button class='delete-btn' onclick='deleteFav(${i})'>Supprimer</button>
+            <div class='quote'>${f.quote}</div>
+            <div class='details'>${f.author || "Auteur inconnu"}</div>
+            <div class='work'>${f.work || ""}</div>
+           </div>`
+        ).join("");
+      }
+    }
+
+    function deleteFav(index) {
+      let favs = getFavorites();
+      const removedQuote = favs.splice(index, 1)[0]; 
+      saveFavorites(favs);
+      showFavs(); 
+      showToast("Favori supprimé.");
+
+      if (getCurrentRandomQuote() && getCurrentRandomQuote().quote === removedQuote.quote) {
+          updateFavoriteButtonState(getCurrentRandomQuote(), 'favBtnHome');
+      }
+      if (getCurrentFilteredQuote() && getCurrentFilteredQuote().quote === removedQuote.quote) {
+          updateFavoriteButtonState(getCurrentFilteredQuote(), 'favBtnBrowse');
+      }
+    }
+
+    // --- COPY QUOTE ---
+    function handleCopyQuote(quoteObj) {
+      if (!quoteObj) return;
+      let text = `"${quoteObj.quote}" — ${quoteObj.author || "Auteur inconnu"}${quoteObj.work ? ", " + quoteObj.work : ""}`;
+      navigator.clipboard.writeText(text)
+        .then(() => showToast("Citation copiée !"))
+        .catch(err => {
+            console.error("Erreur de copie: ", err);
+            showToast("Erreur lors de la copie.");
+        });
+    }
+
+    // --- HISTORY ---
+    function getHistory() {
+        return JSON.parse(localStorage.getItem('stoicHistory') || '[]');
+    }
+    function saveHistory(historyArray) {
+        localStorage.setItem('stoicHistory', JSON.stringify(historyArray));
+    }
+
+    function addToHistory(quoteObj) {
+      if(!quoteObj) return;
+      let hist = getHistory();
+      hist = hist.filter(h => !(h.quote === quoteObj.quote && h.author === quoteObj.author));
+      hist.unshift(quoteObj);
+      if(hist.length > 50) hist.pop(); 
+      saveHistory(hist);
+      if (document.getElementById('section-history').style.display === 'flex') { // Check for flex now
+          showHistory();
+      }
+    }
+
+    function showHistory() {
+      let hist = getHistory();
+      if (hist.length === 0) {
+        historyListEl.innerHTML = "<div class='no-history'>Aucune citation récemment vue.</div>";
+      } else {
+        historyListEl.innerHTML = hist.map((f) =>
+          `<div class='history-item'>
+            <div class='quote'>${f.quote}</div>
+            <div class='details'>${f.author || "Auteur inconnu"}</div>
+            <div class='work'>${f.work || ""}</div>
+           </div>`
+        ).join("");
+      }
+    }
+    
+    // --- TOAST NOTIFICATION ---
+    let toastTimeout;
+    function showToast(message) {
+        if (!toastEl) return;
+        clearTimeout(toastTimeout); 
+        toastEl.innerText = message;
+        toastEl.classList.add('show');
+        toastTimeout = setTimeout(() => {
+            toastEl.classList.remove('show');
+        }, 2500);
+    }
+
+    // --- SETTINGS: EXPORT/IMPORT FAVORITES ---
+    function exportFavorites() {
+        const favs = getFavorites();
+        if (favs.length === 0) {
+            showToast("Aucun favori à exporter.");
+            return;
+        }
+        const jsonData = JSON.stringify(favs, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'stoic_favorites.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Favoris exportés !");
+    }
+
+    function importFavorites(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedFavs = JSON.parse(e.target.result);
+                if (Array.isArray(importedFavs) && importedFavs.every(item => typeof item.quote === 'string' && typeof item.author === 'string')) {
+                    let currentFavs = getFavorites();
+                    let newFavsCount = 0;
+                    importedFavs.forEach(impFav => {
+                        if (!currentFavs.some(currFav => currFav.quote === impFav.quote && currFav.author === impFav.author)) {
+                            currentFavs.push(impFav);
+                            newFavsCount++;
+                        }
+                    });
+                    saveFavorites(currentFavs);
+                    showFavs(); 
+                    updateFavoriteButtonState(getCurrentRandomQuote(), 'favBtnHome');
+                    updateFavoriteButtonState(getCurrentFilteredQuote(), 'favBtnBrowse');
+                    showToast(`${newFavsCount} nouveaux favoris importés. ${importedFavs.length - newFavsCount} étaient déjà présents.`);
+                } else {
+                    showToast("Format de fichier invalide.");
+                }
+            } catch (error) {
+                console.error("Erreur d'importation: ", error);
+                showToast("Erreur lors de l'importation du fichier.");
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = null; 
+    }
+  </script>
+  <script>
+    // --- SERVICE WORKER REGISTRATION ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js') 
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(error => {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
